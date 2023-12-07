@@ -87,6 +87,6 @@ class Product_Item(models.Model):
 
 class Category(models.Model):
     # Category_ID
-    category_name = models.CharField(max_length=255,validators=[MinLengthValidator(3)])
+    category_name = models.CharField(max_length=255,validators=[MinLengthValidator(3)],unique=True)
     class Meta:
         db_table = 'Category'
