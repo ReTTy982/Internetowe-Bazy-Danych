@@ -33,6 +33,9 @@ class CartSerializer(serializers.ModelSerializer):
         fields='__all__'
         
 class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Customer
+        fields='__all__'
     @staticmethod
     def validate_password(value):
         print("TEST")
@@ -73,7 +76,20 @@ class ProductItemSerializer(serializers.ModelSerializer):
         model=Product_Item
         fields='__all__'
 
-class CustomerSerializer(serializers.ModelSerializer):
+
+
+
+class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Customer
-        fields='__all__'
+        model = Cart_Item
+        fields = '__all__'
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order_Item
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'

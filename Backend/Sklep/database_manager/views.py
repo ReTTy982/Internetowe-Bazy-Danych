@@ -6,14 +6,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, logout
-from django.db import IntegrityError
 
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+from django.contrib.auth import authenticate, logout, login
+from django.db import IntegrityError
+from django.contrib.sessions.models import Session
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
-
+from rest_framework.authtoken.models import Token
+from django.contrib import auth
 # Create your views here.
 
 
@@ -24,7 +29,7 @@ def register(request):
             print(request.data)
             if Customer.objects.filter(email=request.data["email"]).exists():
                 raise IntegrityError
-            CustomerSerializer.validate_password(value=request.data['password'],)
+            CustomerSerializer.validate_password(value=request.data['password'])
             user = Customer.objects.create_user(request.data["name"],
                                                 request.data["email"],
                                                 request.data["password"])
@@ -38,20 +43,42 @@ def register(request):
         
 
 @api_view(['POST'])
-def reigster_super_user(request):
-    if request.method == 'POST' and request.user.is_superuser():
-        pass
+def reigster_superuser(request):
+    if request.user is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            if Customer.objects.filter(email=request.data["email"]).exists():
+                raise IntegrityError
+            CustomerSerializer.validate_password(value=request.data['password'])
+            user = Customer.objects.create_superuser(request.data["name"],
+                                                request.data["email"],
+                                                request.data["password"])
+            
+            user.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"error": f"User with email {request.data['email']} already exists"}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 @api_view(['POST'])        
 @csrf_exempt      
 def login(request):
     if request.method == 'POST':
         user = authenticate(name=request.data['name'], password=request.data['password'])
         if user is not None:
-            return Response({"success": True, "is_superuser" : user.is_superuser}, status=status.HTTP_200_OK)
+            Token.objects.filter(user=user).delete()
+            token = Token.objects.create(user_id=user.id)
+            auth.login(request, user)
+            return Response({"success": True, "is_superuser" : user.is_superuser, "token" : token.key}, status=status.HTTP_200_OK)
         else:
-            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZEDITABLE)
+            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZED)
         
-    
+ 
 
 # takie tam testy
 def add_test(request):
@@ -250,8 +277,6 @@ def addProductItem(request):
         except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
             return Response(status=400, data=repr(e))
 
-
-
 @api_view(['POST'])
 def addCustomer(request):
     if request.method == 'POST':
@@ -269,3 +294,72 @@ def addCustomer(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
             return Response(status=400, data=repr(e))
+
+@api_view(['POST'])
+def addToCart(request):
+    if request.method == 'POST':
+        try:
+            customer_id = request.data.get('customer_id')
+            product_id = request.data.get('product_id')
+            amount = request.data.get('amount')
+            customer = get_object_or_404(Customer, id=customer_id)
+            existing_cart = Cart.objects.filter(customer=customer).first()
+            if existing_cart:
+                cart = existing_cart
+            else:
+                cart = Cart.objects.create(customer=customer, order_date=timezone.now())
+            product = get_object_or_404(Product, id=product_id)
+            cart_item = Cart_Item.objects.create(cart=cart, product=product, amount=amount)
+
+            serializer = CartItemSerializer(cart_item)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except (ValueError, TypeError, ObjectDoesNotExist) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e))
+
+@api_view(['POST'])
+def makeOrder(request):
+    try:
+        customer_id = request.data['customer_id']
+        cart = Cart.objects.get(customer_id=customer_id)
+
+        with transaction.atomic():
+            order = Order.objects.create(
+                customer=cart.customer,
+                total_price=0,
+                order_date=cart.order_date,
+                city=request.data['city'],
+                street=request.data['street'],
+                house_number=request.data['house_number']
+            )
+
+            for cart_item in Cart_Item.objects.filter(cart=cart):
+                product = cart_item.product
+                amount = cart_item.amount
+
+                product_items = Product_Item.objects.filter(product=product, in_stock=True)[:amount]
+
+                for product_item in product_items:
+                    product_item.in_stock = False
+                    product_item.save()
+
+                for product_item in product_items:
+                    Order_Item.objects.create(
+                        product_item=product_item,
+                        order=order,
+                        price=product.price
+                    )
+
+
+            orders=Order_Item.objects.filter(order_id = order.id)
+
+            order.total_price = sum(order_item.price for order_item in orders)
+            order.save()
+
+
+            Cart_Item.objects.filter(cart=cart).delete()
+
+            return Response({'message': 'Zamówienie zostało złożone.'}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
