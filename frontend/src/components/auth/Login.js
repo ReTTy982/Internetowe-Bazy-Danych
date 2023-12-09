@@ -3,38 +3,40 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Login.css'
 import './../device_form/FormPopup'
 import {useAuth} from "./AuthContext";
-
+import axios from 'axios';
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    const [isAdmin, setIsAdmin] = useState();
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+
         try {
-            const response = await fetch('http://127.0.0.1:8000/login/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({username, password}),
+            const response = await axios.post('http://127.0.0.1:8000/login/', {
+                name: username,
+                password: password,
             });
 
             console.log(response);
-
-        }catch(error){
-            console.log("login error", error);
-    }
+            if (response.data.is_superuser) {
+                navigate('/home', {state: {isAdmin: true}});
+            } else {
+                navigate('/home', {state: {isAdmin: false}});
+            }
+        } catch (error) {
+            console.log('login error', error);
+        }
+    };
 
         // if(username==='admin' && password==='admin'){
         //     navigate('/home', {state: {isAdmin: true}});
         // } else if(username ==="123" && password ==="123"){
         //     navigate('/home', {state: {isAdmin: false}});
         // }
-    };
+
 
     return (
         <form>
