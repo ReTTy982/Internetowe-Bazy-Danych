@@ -6,14 +6,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import authenticate, logout, login
 from django.db import IntegrityError
-
+from django.contrib.sessions.models import Session
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
-
+from rest_framework.authtoken.models import Token
+from django.contrib import auth
 # Create your views here.
 
 
@@ -24,7 +25,7 @@ def register(request):
             print(request.data)
             if Customer.objects.filter(email=request.data["email"]).exists():
                 raise IntegrityError
-            CustomerSerializer.validate_password(value=request.data['password'],)
+            CustomerSerializer.validate_password(value=request.data['password'])
             user = Customer.objects.create_user(request.data["name"],
                                                 request.data["email"],
                                                 request.data["password"])
@@ -38,20 +39,42 @@ def register(request):
         
 
 @api_view(['POST'])
-def reigster_super_user(request):
-    if request.method == 'POST' and request.user.is_superuser():
-        pass
+def reigster_superuser(request):
+    if request.user is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            if Customer.objects.filter(email=request.data["email"]).exists():
+                raise IntegrityError
+            CustomerSerializer.validate_password(value=request.data['password'])
+            user = Customer.objects.create_superuser(request.data["name"],
+                                                request.data["email"],
+                                                request.data["password"])
+            
+            user.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"error": f"User with email {request.data['email']} already exists"}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 @api_view(['POST'])        
 @csrf_exempt      
 def login(request):
     if request.method == 'POST':
         user = authenticate(name=request.data['name'], password=request.data['password'])
         if user is not None:
-            return Response({"success": True, "is_superuser" : user.is_superuser}, status=status.HTTP_200_OK)
+            Token.objects.filter(user=user).delete()
+            token = Token.objects.create(user_id=user.id)
+            auth.login(request, user)
+            return Response({"success": True, "is_superuser" : user.is_superuser, "token" : token.key}, status=status.HTTP_200_OK)
         else:
-            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZEDITABLE)
+            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZED)
         
-    
+ 
 
 # takie tam testy
 def add_test(request):
