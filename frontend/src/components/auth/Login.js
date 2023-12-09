@@ -11,13 +11,29 @@ const Login = () => {
     const [isAdmin, setIsAdmin] = useState();
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if(username==='admin' && password==='admin'){
-            navigate('/home', {state: {isAdmin: true}});
-        } else if(username ==="123" && password ==="123"){
-            navigate('/home', {state: {isAdmin: false}});
-        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({username, password}),
+            });
+
+            console.log(response);
+
+        }catch(error){
+            console.log("login error", error);
+    }
+
+        // if(username==='admin' && password==='admin'){
+        //     navigate('/home', {state: {isAdmin: true}});
+        // } else if(username ==="123" && password ==="123"){
+        //     navigate('/home', {state: {isAdmin: false}});
+        // }
     };
 
     return (
