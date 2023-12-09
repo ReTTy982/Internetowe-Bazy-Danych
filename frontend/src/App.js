@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Home from './components/Home';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Home from './components/view/Home';
+import Users from "./components/view/Users";
 
 const App = () => {
     return (
@@ -14,6 +15,7 @@ const App = () => {
                 {/* Przekierowanie wszystkich innych ścieżek do /auth/login */}
                 <Route path="/" element={<Navigate to="/auth/login" />} />
                 <Route path="/auth/*" element={<Navigate to="/auth/login" />} />
+                <Route path="/users" element={<Users/>}/>
             </Routes>
         </Router>
     );
