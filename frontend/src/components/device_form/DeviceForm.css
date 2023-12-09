@@ -89,3 +89,15 @@
     justify-content: space-between;
     /*margin-top: 5px;*/
 }
+
+.message-popup {
+    background-color: #ffcccc; /* Czerwone tło */
+    border: 1px solid #cc0000; /* Rama czerwona lub innego odcienia czerwieni */
+    border-radius: 8px; /* Zaokrąglenie rogów */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Cień */
+    padding: 20px; /* Wewnętrzny odstęp */
+    max-width: 400px; /* Maksymalna szerokość okna */
+    margin: 20px auto; /* Centralizacja na stronie */
+    text-align: center; /* Wyśrodkowanie tekstu */
+}
+

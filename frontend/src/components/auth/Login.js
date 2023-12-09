@@ -4,10 +4,12 @@ import './Login.css'
 import './../device_form/FormPopup'
 import {useAuth} from "./AuthContext";
 import axios from 'axios';
+import ResponsePopup from "../device_form/ResponsePopup";
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const [showError, setShowError] = useState(false);
 
 
     const handleSubmit = async (e) => {
@@ -20,14 +22,13 @@ const Login = () => {
                 password: password,
             });
 
-            console.log(response);
             if (response.data.is_superuser) {
                 navigate('/home', {state: {isAdmin: true}});
             } else {
                 navigate('/home', {state: {isAdmin: false}});
             }
         } catch (error) {
-            console.log('login error', error);
+            setShowError(true);
         }
     };
 
@@ -39,6 +40,7 @@ const Login = () => {
 
 
     return (
+        <div>
         <form>
             <h3>Zaloguj się</h3>
 
@@ -64,18 +66,21 @@ const Login = () => {
             </div>
             <div>
                 <div>
-                    <button className='btn-primary' onClick={handleSubmit}></button>
+                    <button className='btn-primary' onClick={handleSubmit}> Zaloguj</button>
                 </div>
                 <div>
                     <Link to="/auth/register">Nie masz konta? Zarejestruj się</Link>
                 </div>
             </div>
             <div className="mb-3">
-
             </div>
-
         </form>
 
+            <ResponsePopup
+                trigger={showError}
+                setTrigger={setShowError}
+                message="Niepoprawna nazwa użytkowika lub hasło"></ResponsePopup>
+        </div>
 
 
     );
