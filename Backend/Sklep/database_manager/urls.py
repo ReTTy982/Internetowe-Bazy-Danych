@@ -10,9 +10,18 @@ urlpatterns = [
     path('viewAllProductsFromCategory', views.viewAllProductsFromCategory),
     path('register/', views.register),
     path('login/', views.login),
+
     path('register_superuser/', views.reigster_superuser),
     path('addCategory', views.addCategory),
     path('addProduct_Meta',views.addProduct_Meta),
     path('addProduct', views.addProduct),
-    
+    path('viewAllDiscs', views.viewAllDiscs),
+    path('viewAllProcessors', views.viewAllProcessors),
+    path('viewAllGraphicCards', views.viewAllGraphicCards),
+    path('addCategory', views.addCategory),
+    path('addProduct_Meta',views.addProduct_Meta),
+    path('addProduct', views.addProduct),
+    path('addProductItem', views.addProductItem),
+    path('addCustomer',views.addCustomer)
+
     ]

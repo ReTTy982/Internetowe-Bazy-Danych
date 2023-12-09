@@ -2,10 +2,12 @@ import React, {useEffect, useState} from 'react';
 import { ReactTableScroll } from 'react-table-scroll';
 import { Container } from "react-bootstrap";
 import './Home.css'
-import Sidebar from "./../bar/Sidebar";
-import {selectOptions} from "@testing-library/user-event/dist/select-options";
-import FormPopup from "./../device_form/FormPopup";
+import AdminManageDevices from "../bar/AdminManageDevices";
+import {useLocation} from 'react-router-dom';
 const Home = () => {
+
+    const {state} = useLocation();
+    const isAdmin = state?.isAdmin || false;
 
     const [components, setComponents] = useState([]);
     const [selectedOption, setSelectedOption] = useState('cpu');
@@ -62,6 +64,7 @@ const Home = () => {
                         {/*<td>{device.age}</td>*/}
                         {/*<td>{device.office.address}</td>*/}
                         {/*<td>{device.readyToSell ? 'Tak' : 'Nie'}</td>*/}
+
                         <td>
                             <button onClick={() => handleDelete(component.id)}>Usuń</button>
                             <button onClick={() => handleEdit(component.id)}>Modyfikuj</button>
@@ -149,14 +152,17 @@ const Home = () => {
 
     return (
         <Container>
-                {/*<Sidebar onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>*/}
+                {/*<AdminManageDevices onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>*/}
             <div className="outer-position">
 
                 <div className="header-block">
                     Sklep procesorów, kart graficznych i pamięci
                 </div>
                 <div className="operation-block">
-                    <Sidebar onSidebarChange={handleSidebarChange}/>
+                    {isAdmin && (
+                        <AdminManageDevices onSidebarChange={handleSidebarChange}/>
+                    )}
+
                 </div>
                     <div className="table-container">
                     <ReactTableScroll className="styled-table">
