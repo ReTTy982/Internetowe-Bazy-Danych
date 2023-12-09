@@ -22,6 +22,11 @@ urlpatterns = [
     path('addProduct_Meta',views.addProduct_Meta),
     path('addProduct', views.addProduct),
     path('addProductItem', views.addProductItem),
-    path('addCustomer',views.addCustomer)
+
+    path('addCustomer',views.addCustomer),
+    path('addToCart', views.addToCart),
+    path('makeOrder', views.makeOrder),
+
+
 
     ]
