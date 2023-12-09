@@ -48,7 +48,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ['*']
+SESSION_COOKIE_SAMESITE = "None"
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'Sklep.urls'
 
@@ -79,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'shop',
         'USER': 'root',
-        'PASSWORD': 'niePowiem',
+        'PASSWORD': 'Maurycy123456789',
         'HOST':'127.0.0.1',
         'PORT':'3306',
     }
