@@ -8,4 +8,7 @@ urlpatterns = [
     path('viewAllOrders', views.viewAllOrders),
     path('viewCart', views.viewCart),
     path('viewAllProductsFromCategory', views.viewAllProductsFromCategory),
+    path('addCategory', views.addCategory),
+    path('addProduct_Meta',views.addProduct_Meta),
+    path('addProduct', views.addProduct),
     ]

@@ -4,6 +4,10 @@ from .serializers import *
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
+from django.core.exceptions import FieldError
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 # Create your views here.
 
 
@@ -80,7 +84,7 @@ def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewA
         if customer_value is not None:
             orders = Order.objects.filter(customer=customer_value)
             serializer=OrderSerializer(orders, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
     else:
@@ -126,3 +130,36 @@ def viewAllProductsFromCategory(request): #to trzeba całkowicie przerobić, dod
             return HttpResponse(status=400)
     else:
         return HttpResponse(status=400)
+
+@api_view(['POST'])
+def addCategory(request):
+    if request.method == 'POST':
+        serializer=CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def addProduct_Meta(request):
+    if request.method == 'POST':
+        serializer=Product_MetaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def addProduct(request):
+    if request.method == 'POST':
+        try:
+            params = request.data.dict()
+            product_Meta = Product_Meta.objects.get(id = params('data'))
+            category = Category.objects.get(id = params('category_name'))
+            product = Product(product_name=params['product_name'], amount =params['amount'], price = params['price'], producer = params['producer]'], category = category, product_meta = product_Meta )
+            product.full_clean()
+            product.save()
+            serializer = ProductSerializer(product)
+            return Response(status=201,data=serializer.data)
+        except( ValueError, TypeError, FieldError, ObjectDoesNotExist,ValidationError) as e:
+            return Response(status=400,data=repr(e))
