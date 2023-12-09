@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css'
 import './../device_form/FormPopup'
+import {useAuth} from "./AuthContext";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const [isAdmin, setIsAdmin] = useState();
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Dodaj obsługę logowania
-
-        // Po zalogowaniu przenieś użytkownika do strony domowej
-        navigate('/home');
+        if(username==='admin' && password==='admin'){
+            navigate('/home', {state: {isAdmin: true}});
+        } else if(username ==="123" && password ==="123"){
+            navigate('/home', {state: {isAdmin: false}});
+        }
     };
 
     return (
@@ -22,10 +26,12 @@ const Login = () => {
 
 
             <div className="mb-3">
-                <label>Email address</label>
+                <label>Nazwa użytkownika</label>
                 <input
                     className="form-control"
-                    placeholder="twójemail@example.com"
+                    placeholder="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                 />
             </div>
             <div className="mb-3">
@@ -34,11 +40,13 @@ const Login = () => {
                     type="password"
                     className="form-control"
                     placeholder="Hasło"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
             </div>
             <div>
                 <div>
-                    <Link to="/home" className="btn-primary">Zaloguj</Link>
+                    <button className='btn-primary' onClick={handleSubmit}></button>
                 </div>
                 <div>
                     <Link to="/auth/register">Nie masz konta? Zarejestruj się</Link>
