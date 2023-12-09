@@ -189,13 +189,21 @@ def addProduct_Meta(request):
 def addProduct(request):
     if request.method == 'POST':
         try:
-            params = request.data.dict()
-            product_Meta = Product_Meta.objects.get(id = params('data'))
-            category = Category.objects.get(id = params('category_name'))
-            product = Product(product_name=params['product_name'], amount =params['amount'], price = params['price'], producer = params['producer]'], category = category, product_meta = product_Meta )
+            params = request.data
+            category = Category.objects.get(id=params['Category_ID'])
+            product_Meta = Product_Meta.objects.get(id=params['Product_Meta_ID'])
+            product = Product(
+                product_name=params['product_name'],
+                amount=params['amount'],
+                price=params['price'],
+                producer=params['producer'],
+                category=category,
+                product_meta=product_Meta
+            )
             product.full_clean()
             product.save()
             serializer = ProductSerializer(product)
-            return Response(status=201,data=serializer.data)
-        except( ValueError, TypeError, FieldError, ObjectDoesNotExist,ValidationError) as e:
-            return Response(status=400,data=repr(e))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
+            return Response(status=400, data=repr(e))
+
