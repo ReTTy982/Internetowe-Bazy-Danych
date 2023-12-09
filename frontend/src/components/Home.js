@@ -5,127 +5,102 @@ import './Home.css'
 import Sidebar from "./Sidebar";
 import SidebarUserConfig from "./SidebarUserConfig";
 import {selectOptions} from "@testing-library/user-event/dist/select-options";
-import ComputerForm from "./ComputerForm";
+import FormPopup from "./FormPopup";
 const Home = () => {
 
-    const [devices, setDevices] = useState([]);
-    const [selectedOption, setSelectedOption] = useState('all');
-    const [addComputerPopup, setAddComputerPopup] = useState(false);
+    const [components, setComponents] = useState([]);
+    const [selectedOption, setSelectedOption] = useState('cpu');
+    // const [addComputerPopup, setAddComputerPopup] = useState(false);
 
 
     const fetchData = (option) =>{
         let url;
 
         switch (option){
-
-            case 'all':
-                url = 'http://localhost:8080/devices/all';
+            case 'cpu':
+                url = 'http://localhost:8080/cpus/all';
                 break;
-            case 'computer':
-                url = 'http://localhost:8080/computers/all';
+            case 'gpu':
+                url = 'http://localhost:8080/gpus/all';
                 break;
-            case 'tablet':
-                url = 'http://localhost:8080/tablets/all';
-                break;
-            case 'other':
-                url = 'http://localhost:8080/other-devices/all';
+            case 'storage':
+                url = 'http://localhost:8080/storages/all';
                 break;
             default:
-                url = 'http://localhost:8080/devices/all';
+                url = 'http://localhost:8080/cpus/all';
+
         }
 
         fetch(url)
             .then(response =>response.json())
-            .then(data => setDevices(data))
+            .then(data => setComponents(data))
             .catch(error => console.error("Error fetchin data:",error));
     }
 
     const headersMap ={
-      all: ['ID', 'Nazwa', 'Cena', 'Opis'],
-        computer: ['ID', 'Nazwa', 'Cena', 'Numer seryjny', 'System', 'Bateria', 'Model', 'Procesor', 'Pamięć', 'Ram'],
-        tablet: ['ID', 'Nazwa', 'Cena','Ekran', 'System', 'Bateria'],
-        other: ['ID', 'Nazwa', 'Cena','Dodatkowy opis'],
+        cpu: ['ID', 'Nazwa', 'Cena', 'Ilość', 'Producent', 'Socket', 'Taktowanie', 'Liczba rdzeni', 'Cache', 'Zintegrowany układ graficzny', ],
+        gpu: ['ID', 'Nazwa', 'Cena', 'Ilość', 'Producent', 'Układ', 'Pamięć', 'Rodzaj pamięci', 'Złącza'],
+        storage: ['ID', 'Nazwa', 'Cena', 'Ilość', 'Producent', 'Pojemność', 'Interfejs', 'Prędkość odczytu', 'Prędkość zapisu'],
     };
 
-    const handleSidebarClick = (selectedOption) => {
+    const handleSidebarChange = (selectedOption) => {
         setSelectedOption(selectedOption);
     };
 
-    const handleAddComputerClick = () =>{
-        setAddComputerPopup(true)
-    };
+    // const handleAddComputerClick = () =>{
+    //     setAddComputerPopup(true)
+    // };
 
-    const renderDataForOption = (device, option) => {
+    const renderDataForOption = (component, option) => {
         switch (option) {
-            case 'all':
+            case 'cpu':
                 return (
                     <>
-                        <td>{device.id}</td>
-                        <td>{device.deviceName}</td>
-                        <td>{device.price} zł</td>
-                        <td>{device.description}</td>
-                        <td>{device.age}</td>
-                        <td>{device.office.address}</td>
+                        <td>{component.id}</td>
+                        {/*<td>{device.deviceName}</td>*/}
+                        {/*<td>{device.price} zł</td>*/}
+                        {/*<td>{device.description}</td>*/}
+                        {/*<td>{device.age}</td>*/}
+                        {/*<td>{device.office.address}</td>*/}
+                        {/*<td>{device.readyToSell ? 'Tak' : 'Nie'}</td>*/}
                         <td>
-                            <button onClick={() => handleDelete(device.id)}>Usuń</button>
-                            <button onClick={() => handleEdit(device.id)}>Modyfikuj</button>
-                            <button onClick={() => handleInfo(device.id)}>Informacje</button>
+                            <button onClick={() => handleDelete(component.id)}>Usuń</button>
+                            <button onClick={() => handleEdit(component.id)}>Modyfikuj</button>
                         </td>
                     </>
                 );
-            case 'computer':
+            case 'gpu':
                 return (
                     <>
-                        <td>{device.id}</td>
-                        <td>{device.deviceName}</td>
-                        <td>{device.price} zł</td>
-                        <td>{device.description}</td>
-                        <td>{device.age}</td>
-                        <td>{device.serialNumber}</td>
-                        <td>{device.operatingSystem}</td>
-                        <td>{device.batteryLife}</td>
-                        <td>{device.model}</td>
-                        <td>{device.cpu ? device.cpuName : 'Brak'}</td>
-                        <td>{device.storage ? device.storageName : 'Brak'}</td>
-                        <td>{device.ram ? device.ramName : 'Brak'}</td>
+                        <td>{component.id}</td>
+                        {/*<td>{device.deviceName}</td>*/}
+                        {/*<td>{device.price} zł</td>*/}
+                        {/*<td>{device.description}</td>*/}
+                        {/*<td>{device.age}</td>*/}
+                        {/*<td>{device.office.address}</td>*/}
+                        {/*<td>{device.readyToSell ? 'Tak' : 'Nie'}</td>*/}
+                        {/*<td>{device.serialNumber}</td>*/}
+                        {/*<td>{device.operatingSystem}</td>*/}
+                        {/*<td>{device.batteryLife}</td>*/}
+                        {/*<td>{device.model}</td>*/}
+                        {/*<td>{device.cpu ? device.cpu.name : 'Brak'}</td>*/}
+                        {/*<td>{device.storage ? device.storage.name : 'Brak'}</td>*/}
+                        {/*<td>{device.ram ? device.storage.name : 'Brak'}</td>*/}
                         <td>
-                            <button onClick={() => handleDelete(device.id)}>Usuń</button>
-                            <button onClick={() => handleEdit(device.id)}>Modyfikuj</button>
-                            <button onClick={() => handleInfo(device.id)}>Informacje</button>
+                            <button onClick={() => handleDelete(component.id)}>Usuń</button>
+                            <button onClick={() => handleEdit(component.id)}>Modyfikuj</button>
                         </td>
                     </>
                 );
-            case 'tablet':
+            case 'storage':
 
                 return (
                     <>
-                        <td>{device.id}</td>
-                        <td>{device.deviceName}</td>
-                        <td>{device.price} zł</td>
-                        <td>{device.description}</td>
-                        <td>{device.age}</td>
-                        <td>{device.screenSize}</td>
-                        <td>{device.operatingSystem}</td>
-                        <td>{device.batteryLife}</td>
+                        <td>{component.id}</td>
                         <td>
-                            <button onClick={() => handleDelete(device.id)}>Usuń</button>
-                            <button onClick={() => handleEdit(device.id)}>Modyfikuj</button>
-                            <button onClick={() => handleInfo(device.id)}>Informacje</button>
-                        </td>
-                    </>
-                );
-            case 'other':
-                return (
-                    <>
-                        <td>{device.id}</td>
-                        <td>{device.deviceName}</td>
-                        <td>{device.price} zł</td>
-                        <td>{device.description}</td>
-                        <td>{device.age}</td>
-                        <td>
-                            <button onClick={() => handleDelete(device.id)}>Usuń</button>
-                            <button onClick={() => handleEdit(device.id)}>Modyfikuj</button>
-                            <button onClick={() => handleInfo(device.id)}>Informacje</button>
+                            <button onClick={() => handleDelete(component.id)}>Usuń</button>
+                            <button onClick={() => handleEdit(component.id)}>Modyfikuj</button>
+
                         </td>
                     </>
                 );
@@ -140,7 +115,28 @@ const Home = () => {
     }, [selectedOption]);
 
     const handleDelete = (deviceId) => {
-        console.log(`Usuń urządzenie o ID: ${deviceId}`);
+
+        // fetch(`http://localhost:8080/devices/${deviceId}`, {
+        //     method: 'DELETE',
+        //     headers: {
+        //         'Content-type': 'application/json; charset=UTF-8',
+        //     },
+        // })
+        //     .then((res) => {
+        //         if (!res.ok) {
+        //             throw new Error('Wystąpił problem podczas usuwania urządzenia.');
+        //         }
+        //         return res.json();
+        //     })
+        //     .then((data) => {
+        //         console.log('Urządzenie zostało pomyślnie usunięte.');
+        //     })
+        //     .catch((err) => {
+        //         console.error(err.message);
+        //     });
+        //
+        // const updatedDevices = devices.filter((device) => device.id !== deviceId);
+        // setDevices(updatedDevices);
     };
 
     const handleEdit = (deviceId) => {
@@ -154,8 +150,16 @@ const Home = () => {
 
     return (
         <Container>
-                <Sidebar onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>
-                <div className="table-container">
+                {/*<Sidebar onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>*/}
+            <div className="outer-position">
+
+                <div className="header-block">
+                    Sklep procesorów, kart graficznych i pamięci
+                </div>
+                <div className="operation-block">
+                    <Sidebar onSidebarChange={handleSidebarChange}/>
+                </div>
+                    <div className="table-container">
                     <ReactTableScroll className="styled-table">
                         <table className="device table styled-table">
                             <thead>
@@ -167,17 +171,18 @@ const Home = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {devices.map((device) => (
-                                <tr key={device.id}>
-                                    {renderDataForOption(device, selectedOption)}
+                            {components.map((component) => (
+                                <tr key={component.id}>
+                                    {renderDataForOption(component, selectedOption)}
                                 </tr>
                             ))}
                             </tbody>
                         </table>
                     </ReactTableScroll>
                 </div>
-                <SidebarUserConfig/>
-            <ComputerForm trigger={addComputerPopup} setTrigger={setAddComputerPopup}></ComputerForm>
+            </div>
+                {/*<SidebarUserConfig/>*/}
+            {/*<FormPopup trigger={addComputerPopup} setTrigger={setAddComputerPopup}></FormPopup>*/}
         </Container>
     );
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css'
-import './ComputerForm'
-import ComputerForm from "./ComputerForm";
+import './FormPopup'
+import FormPopup from "./FormPopup";
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
