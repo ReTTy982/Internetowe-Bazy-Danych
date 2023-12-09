@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { ReactTableScroll } from 'react-table-scroll';
 import { Container } from "react-bootstrap";
-import Sidebar from "../bar/Sidebar";
+import ManageUserBar from "../bar/ManageUserBar";
+import {useNavigate} from 'react-router-dom'
 
 
 const Users = () =>{
@@ -55,14 +56,14 @@ const Users = () =>{
     return (
 
         <Container>
-            {/*<Sidebar onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>*/}
+            {/*<AdminManageDevices onSidebarClick={handleSidebarClick} onAddComputerClick={handleAddComputerClick}/>*/}
             <div className="outer-position">
 
                 <div className="header-block">
                     Panel administracyjny, zarządzanie użytkownikami
                 </div>
                 <div className="operation-block">
-                    {/*<Sidebar onSidebarChange={handleSidebarChange}/>*/}
+                    <ManageUserBar/>
                 </div>
                 <div className="table-container">
                     <ReactTableScroll className="styled-table">

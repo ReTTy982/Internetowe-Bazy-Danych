@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
-    const [name, setName] = useState('');
-    const [surname, setSurname] = useState('');
     const [username, setUsername] = useState('');
 
     const navigate = useNavigate();
 
     const handleLogin = () => {
-        // Przenieś użytkownika do okna logowania
         navigate('/auth/login');
     }
 
@@ -20,21 +18,19 @@ const Register = () => {
         e.preventDefault();
 
         if (pass !== confirmPass) {
-            console.log("Hasła się nie zgadzają");
             return;
         }
 
-        const data = {
-            username,
-            password: pass,
-            name,
-            surname,
-            email
-        };
 
         try {
-            // Dodaj logikę rejestracji
-            console.log('Rejestracja udana!');
+
+            const response = await axios.post('http://127.0.0.1:8000/register/', {
+                name: username,
+                password: pass,
+                email: email
+            });
+
+
         } catch (error) {
             console.error('Błąd podczas wywoływania żądania:', error);
         }
@@ -49,6 +45,8 @@ const Register = () => {
                 <input
                     className="form-control"
                     placeholder="nazwa użytkownika"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                 />
             </div>
             <div className="mb-4">
@@ -56,20 +54,8 @@ const Register = () => {
                 <input
                     className="form-control"
                     placeholder="twójemail@example.com"
-                />
-            </div>
-            <div className="mb-4">
-                <label>Imie</label>
-                <input
-                    className="form-control"
-                    placeholder="Imie"
-                />
-            </div>
-            <div className="mb-4">
-                <label>Nazwisko</label>
-                <input
-                    className="form-control"
-                    placeholder="Nazwisko"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
                 />
             </div>
 
@@ -79,6 +65,8 @@ const Register = () => {
                     type="password"
                     className="form-control"
                     placeholder="Hasło"
+                    value={pass}
+                    onChange={(e) => setPass(e.target.value)}
                 />
             </div>
             <div className="mb-4">
@@ -87,17 +75,20 @@ const Register = () => {
                     type="password"
                     className="form-control"
                     placeholder="Hasło"
+                    value={confirmPass}
+                    onChange={(e)=> setConfirmPass(e.target.value)}
                 />
             </div>
             <div>
                 <div>
-                    <Link to="/auth/login" className="btn-primary">Zarejestruj</Link>
+                    <button className='btn-primary' onClick={handleSubmit}></button>
                 </div>
                 <div>
                     <Link to="/auth/login">Masz konto? Zaloguj się</Link>
                 </div>
             </div>
             <div className="mb-3">
+
 
             </div>
 
