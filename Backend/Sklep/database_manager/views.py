@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse, HttpRequest
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, logout
 from django.db import IntegrityError
 
@@ -35,14 +35,19 @@ def register(request):
             return Response({"error": f"User with email {request.data['email']} already exists"}, status=status.HTTP_409_CONFLICT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 
-        
-        
+@api_view(['POST'])
+def reigster_super_user(request):
+    if request.method == 'POST' and request.user.is_superuser():
+        pass
+@api_view(['POST'])        
+@csrf_exempt      
 def login(request):
-    if request.method == 'GET':
-        user = authenticate(name="test", password="testtesttest")
-        if user.is_authenticated:
-            return Response({"success": True}, status=status.HTTP_200_OK)
+    if request.method == 'POST':
+        user = authenticate(name=request.data['name'], password=request.data['password'])
+        if user is not None:
+            return Response({"success": True, "is_superuser" : user.is_superuser}, status=status.HTTP_200_OK)
         else:
             return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZEDITABLE)
         
@@ -189,13 +194,21 @@ def addProduct_Meta(request):
 def addProduct(request):
     if request.method == 'POST':
         try:
-            params = request.data.dict()
-            product_Meta = Product_Meta.objects.get(id = params('data'))
-            category = Category.objects.get(id = params('category_name'))
-            product = Product(product_name=params['product_name'], amount =params['amount'], price = params['price'], producer = params['producer]'], category = category, product_meta = product_Meta )
+            params = request.data
+            category = Category.objects.get(id=params['Category_ID'])
+            product_Meta = Product_Meta.objects.get(id=params['Product_Meta_ID'])
+            product = Product(
+                product_name=params['product_name'],
+                amount=params['amount'],
+                price=params['price'],
+                producer=params['producer'],
+                category=category,
+                product_meta=product_Meta
+            )
             product.full_clean()
             product.save()
             serializer = ProductSerializer(product)
-            return Response(status=201,data=serializer.data)
-        except( ValueError, TypeError, FieldError, ObjectDoesNotExist,ValidationError) as e:
-            return Response(status=400,data=repr(e))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
+            return Response(status=400, data=repr(e))
+
