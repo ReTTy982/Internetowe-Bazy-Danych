@@ -2,7 +2,7 @@
 
 ## manage.py
 Sciężka do pliku znajduje sie tutaj [tutaj](/Backend/Sklep/manage.py). Używa się go do korzystania z django. Jak chcecie odpalić to:
-> python manage.py startserver
+> python manage.py runserver
 >
 Uruchomienie samego manage.py da wam inne opcje
 
