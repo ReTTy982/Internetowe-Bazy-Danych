@@ -50,3 +50,13 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model=Product
         fields='__all__'
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product_Item
+        fields='__all__'
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Customer
+        fields='__all__'

@@ -13,4 +13,6 @@ urlpatterns = [
     path('addCategory', views.addCategory),
     path('addProduct_Meta',views.addProduct_Meta),
     path('addProduct', views.addProduct),
+    path('addProductItem', views.addProductItem),
+    path('addCustomer',views.addCustomer)
     ]

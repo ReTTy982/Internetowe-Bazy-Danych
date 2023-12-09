@@ -212,3 +212,40 @@ def addProduct(request):
         except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
             return Response(status=400, data=repr(e))
 
+@api_view(['POST'])
+def addProductItem(request):
+    if request.method == 'POST':
+        try:
+            params = request.data
+            product = Product.objects.get(id=params['id'])
+            productItem = Product_Item(
+                product=product,
+                serial_number=params['serial_number'],
+                in_stock=True
+            )
+            productItem.full_clean()
+            productItem.save()
+            serializer = ProductItemSerializer(productItem)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
+            return Response(status=400, data=repr(e))
+
+
+
+@api_view(['POST'])
+def addCustomer(request):
+    if request.method == 'POST':
+        try:
+            params = request.data
+            customer = Customer(
+                name=params['name'],
+                email=params['email'],
+                password=params['password']
+            )
+            customer.full_clean()
+            customer.save()
+
+            serializer = CustomerSerializer(customer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
+            return Response(status=400, data=repr(e))
