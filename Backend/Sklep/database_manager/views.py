@@ -2,6 +2,8 @@ from django.shortcuts import render
 from .models import *
 from .serializers import *
 from django.http import HttpResponse, JsonResponse, HttpRequest
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 # Create your views here.
 
 
@@ -71,24 +73,14 @@ def viewAllCustomers(request): #dla admina
     else:
         return HttpResponse(status=400)
 
-def viewAllOrders(request):
+@api_view(['GET'])
+def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewAllOrders?customer=4
     if request.method == 'GET':
         customer_value = request.GET.get('customer')
         if customer_value is not None:
             orders = Order.objects.filter(customer=customer_value)
-            orders_data = [
-                {
-                    'id': order.id,
-                    'customer': order.customer,
-                    'total_price': order.total_price,
-                    'order_date': order.order_date,
-                    'city': order.city,
-                    'street': order.street,
-                    'house_number': order.house_number,
-                }
-                for order in orders
-            ]
-            return JsonResponse(orders_data, safe=False)
+            serializer=OrderSerializer(orders, many=True)
+            return Response(serializer.data)
         else:
             return HttpResponse(status=400)
     else:
