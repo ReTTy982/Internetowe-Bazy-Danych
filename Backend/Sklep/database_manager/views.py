@@ -111,6 +111,7 @@ def viewAllCustomers(request): #dla admina
                 'id': customer.id,
                 'name': customer.name,
                 'email': customer.email,
+                'is_staff': customer.is_staff
             }
             for customer in customers
         ]
@@ -125,28 +126,21 @@ def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewA
         if customer_value is not None:
             orders = Order.objects.filter(customer=customer_value)
             serializer=OrderSerializer(orders, many=True)
-            return JsonResponse(serializer.data, safe=False)
+            return Response(serializer.data)
         else:
             return HttpResponse(status=400)
     else:
         return HttpResponse(status=400)
 
-
+@api_view(['GET'])
 def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będzie na razie
     if request.method == 'GET':
         customer_value = request.GET.get('customer')
         if customer_value is not None:
             cart = Cart.objects.get(customer=customer_value)
             cart_items = Cart_Item.objects.filter(cart=cart.id)
-            cart_data = [
-                {
-                    'amount': item.amount,
-                    'product_name': Product.objects.get(id=item.product).product,
-                    'price': Product.objects.get(id=item.product).price,
-                }
-                for item in cart_items
-            ]
-            return JsonResponse(cart_data, safe=False)
+            serializer=Cart_ItemSerializer(cart_items,many=True)
+            return Response(serializer.data)
         else:
             return HttpResponse(status=400)
     else:
@@ -154,7 +148,7 @@ def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będz
 
 
 
-def viewAllProductsFromCategory(request): #to trzeba całkowicie przerobić, dodać warunki w zależności od kategorii lub to w serializatorze obrobić czy coś
+def viewAllProductsFromCategory(request): # to jest niepotrzebne
     if request.method == 'GET':
         category_id = request.GET.get('category_id')
         if category_id is not None:
@@ -169,6 +163,32 @@ def viewAllProductsFromCategory(request): #to trzeba całkowicie przerobić, dod
             return JsonResponse(products_data, safe=False)
         else:
             return HttpResponse(status=400)
+    else:
+        return HttpResponse(status=400)
+
+@api_view(['GET'])
+def viewAllDiscs(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Dyski').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return Response(serializer.data)
+    else:
+        return HttpResponse(status=400)
+@api_view(['GET'])
+def viewAllProcessors(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Procesory').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return Response(serializer.data)
+    else:
+        return HttpResponse(status=400)
+
+@api_view(['GET'])
+def viewAllGraphicCards(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Karty Graficzne').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return Response(serializer.data)
     else:
         return HttpResponse(status=400)
 
