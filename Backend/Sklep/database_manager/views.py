@@ -142,28 +142,30 @@ def viewAllCustomers(request): #dla admina
     else:
         return HttpResponse(status=400)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewAllOrders?customer=4
-    if request.method == 'GET':
-        customer_value = request.GET.get('customer')
+    if request.method == 'POST':
+        #customer_value = request.GET.get('customer')
+        customer_value = request.data.get('customer')
         if customer_value is not None:
             orders = Order.objects.filter(customer=customer_value)
             serializer=OrderSerializer(orders, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
     else:
         return HttpResponse(status=400)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będzie na razie
-    if request.method == 'GET':
-        customer_value = request.GET.get('customer')
+    if request.method == 'POST':
+        #customer_value = request.GET.get('customer')
+        customer_value = request.data.get('customer')
         if customer_value is not None:
             cart = Cart.objects.get(customer=customer_value)
             cart_items = Cart_Item.objects.filter(cart=cart.id)
             serializer=Cart_ItemSerializer(cart_items,many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
     else:
@@ -194,7 +196,7 @@ def viewAllDiscs(request):
     if request.method == 'GET':
         products = Product.objects.filter(category=Category.objects.get(category_name='Dyski').id)
         serializer=ProductWithProduct_MetaSerializer(products,many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse(status=400)
 @api_view(['GET'])
@@ -202,7 +204,7 @@ def viewAllProcessors(request):
     if request.method == 'GET':
         products = Product.objects.filter(category=Category.objects.get(category_name='Procesory').id)
         serializer=ProductWithProduct_MetaSerializer(products,many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse(status=400)
 
@@ -211,7 +213,7 @@ def viewAllGraphicCards(request):
     if request.method == 'GET':
         products = Product.objects.filter(category=Category.objects.get(category_name='Karty Graficzne').id)
         serializer=ProductWithProduct_MetaSerializer(products,many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse(status=400)
 
