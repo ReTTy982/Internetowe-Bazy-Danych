@@ -1,11 +1,42 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager,PermissionsMixin
 
-class Customer(models.Model):
+class CustomUserManager(BaseUserManager):
+    def create_user(self,name,email,password, **extra_kwargs):
+        if not email:
+            raise ValueError('Please provide an email address')
+        email = self.normalize_email(email)      
+        user = self.model(name=name,email=email, **extra_kwargs)
+        user.set_password(password)
+        print(f"""
+              Name: {user.name},
+              email: {user.email},
+              password: {user.password}
+              """)
+        user.save()
+        return user
+    
+    
+    def create_superuser(self, name,email, password, **extra_fields):
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_staff", True)
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError(_("Superuser must have is_superuser=True."))
+
+        return self.create_user(name,email, password, **extra_fields)
+        
+
+class Customer(AbstractBaseUser, PermissionsMixin):
     # Customer_id
     name = models.CharField(max_length=30,unique=True,validators=[MinLengthValidator(3)])
-    email = models.CharField(max_length=320,unique=True,validators=[MinLengthValidator(3)])
-    password = models.CharField(max_length=30,validators=[MinLengthValidator(8)])
+    email = models.EmailField(("email address"), unique=True)
+    #email = models.CharField(max_length=320,unique=True,validators=[MinLengthValidator(3)])
+    password = models.CharField(max_length=255,validators=[MinLengthValidator(8)])
+    is_staff = models.BooleanField(default=False)
+    USERNAME_FIELD = "name"
+    REQUIRED_FIELDS = ['email','password']
+    objects = CustomUserManager()
     class Meta:
         db_table = 'Customer'
 
@@ -38,9 +69,9 @@ class Order(models.Model):
     total_price = models.FloatField()
     order_date = models.DateTimeField()
     # address
-    city = models.CharField(max_length=255,validators=[MinLengthValidator(2)])
-    street = models.CharField(max_length=255,validators=[MinLengthValidator(3)])
-    house_number = models.IntegerField()
+    city = models.CharField(max_length=255,validators=[MinLengthValidator(2)],default='')
+    street = models.CharField(max_length=255,validators=[MinLengthValidator(3)],default='')
+    house_number = models.IntegerField(default=0)
     class Meta:
         db_table = 'Order'
 

@@ -4,9 +4,33 @@ from .serializers import *
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate, logout
+
 # Create your views here.
 
 
+
+def register(request):
+    if request.method == 'GET':
+        user = Customer.objects.create_user("test","test@Test.pl","testtesttest")
+        user.save()
+        
+def login(request):
+    if request.method == 'GET':
+        user = authenticate(name="test", password="testtesttest")
+        if user is not None:
+            print("LETSGO")
+            if request.user.is_authenticated:
+                print("TAK")
+                logout(request)
+                if request.user.is_authenticated:
+                    print("ciagle tak")
+                else:
+                    print("juz nie")
+        else:
+            print(":()")
+        
+    
 
 # takie tam testy
 def add_test(request):
@@ -80,7 +104,7 @@ def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewA
         if customer_value is not None:
             orders = Order.objects.filter(customer=customer_value)
             serializer=OrderSerializer(orders, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
     else:
