@@ -1,5 +1,6 @@
 from .models import *
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 
 
 class Order_ItemSerializer(serializers.ModelSerializer):
@@ -21,3 +22,11 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model=Cart
         fields='__all__'
+        
+class CustomerSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def validate_password(value):
+        print("TEST")
+        if len(value) < 8:
+            
+            raise ValidationError(f'Password must be at least 8 characters, now it has {len(value)}')

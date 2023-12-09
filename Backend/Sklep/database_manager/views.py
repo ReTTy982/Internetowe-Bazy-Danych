@@ -3,32 +3,41 @@ from .models import *
 from .serializers import *
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, logout
-
+from django.db import IntegrityError
 # Create your views here.
 
 
-
+@api_view(['POST'])
 def register(request):
-    if request.method == 'GET':
-        user = Customer.objects.create_user("test","test@Test.pl","testtesttest")
-        user.save()
+    if request.method == 'POST':
+        try:
+            print(request.data)
+            if Customer.objects.filter(email=request.data["email"]).exists():
+                raise IntegrityError
+            CustomerSerializer.validate_password(value=request.data['password'],)
+            user = Customer.objects.create_user(request.data["name"],
+                                                request.data["email"],
+                                                request.data["password"])
+            
+            user.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"error": f"User with email {request.data['email']} already exists"}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        
         
 def login(request):
     if request.method == 'GET':
         user = authenticate(name="test", password="testtesttest")
-        if user is not None:
-            print("LETSGO")
-            if request.user.is_authenticated:
-                print("TAK")
-                logout(request)
-                if request.user.is_authenticated:
-                    print("ciagle tak")
-                else:
-                    print("juz nie")
+        if user.is_authenticated:
+            return Response({"success": True}, status=status.HTTP_200_OK)
         else:
-            print(":()")
+            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZEDITABLE)
         
     
 
