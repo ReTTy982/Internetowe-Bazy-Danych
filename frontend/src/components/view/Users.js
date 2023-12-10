@@ -7,6 +7,7 @@ import {useNavigate} from 'react-router-dom'
 
 const Users = () =>{
 
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const fetchUsers = () =>{
 
@@ -17,6 +18,10 @@ const Users = () =>{
     }
 
     const handleDisplayUserCart = (userId) =>{
+
+        localStorage.setItem("user_id", userId);
+        navigate('/cart');
+
 
     }
 
