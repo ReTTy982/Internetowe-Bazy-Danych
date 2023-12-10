@@ -50,7 +50,7 @@ const Register = () => {
 
     return (
         <div>
-            <form>
+            <form className="login-form">
                 <h3>Zarejestruj się</h3>
 
                 <div className="mb-4">
