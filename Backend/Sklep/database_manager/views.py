@@ -189,23 +189,12 @@ def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będz
     else:
         return HttpResponse(status=400)
 
-
-
-def viewAllProductsFromCategory(request): # to jest niepotrzebne
+@api_view(['GET'])
+def viewAllProducts(request):
     if request.method == 'GET':
-        category_id = request.GET.get('category_id')
-        if category_id is not None:
-            products = Product.objects.filter(category=category_id)
-            products_data = [
-                {
-                    'id': product.id,
-                    'price': product.price,
-                }
-                for product in products
-            ]
-            return JsonResponse(products_data, safe=False)
-        else:
-            return HttpResponse(status=400)
+        products = Product.objects.all()
+        serializer=ProductSerializer(products,many=True)
+        return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse(status=400)
 
