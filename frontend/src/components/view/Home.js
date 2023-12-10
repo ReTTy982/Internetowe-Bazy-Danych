@@ -4,6 +4,7 @@ import { Container } from "react-bootstrap";
 import './Home.css'
 import AdminManageDevices from "../bar/AdminManageDevices";
 import {useLocation} from 'react-router-dom';
+import UserBar from "../bar/UserBar";
 const Home = () => {
 
     const {state} = useLocation();
@@ -163,11 +164,11 @@ const Home = () => {
                     Sklep procesorów, kart graficznych i pamięci
                 </div>
                 <div className="operation-block">
-                    {console.log(isAdmin)}
-                    {isAdmin && (
+                    {isAdmin ? (
                         <AdminManageDevices onSidebarChange={handleSidebarChange}/>
+                    ) : (
+                       <UserBar/>
                     )}
-
                 </div>
                     <div className="table-container">
                     <ReactTableScroll className="styled-table">
