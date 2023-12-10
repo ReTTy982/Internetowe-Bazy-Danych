@@ -47,7 +47,7 @@ const Login = () => {
 
     return (
         <div>
-        <form>
+        <form className="login-form">
             <h3>Zaloguj się</h3>
 
 

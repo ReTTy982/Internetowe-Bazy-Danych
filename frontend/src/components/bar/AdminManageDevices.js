@@ -31,7 +31,7 @@ const AdminManageDevices = ({ onSidebarChange }) => {
 
 
     return (
-        <div>
+        <div className="operation-block">
             <select value={selectedString} onChange={handleSelectChange}>
                 {stringList.map((option) => (
                     <option key={option} value={option}>

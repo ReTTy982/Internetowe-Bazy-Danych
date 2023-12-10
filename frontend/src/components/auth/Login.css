@@ -12,7 +12,7 @@ body{
 
 }
 
-form {
+.login-form {
     max-width: 25%;
     margin: 0 auto;
     padding: 20px;

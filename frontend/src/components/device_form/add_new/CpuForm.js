@@ -72,6 +72,7 @@ function CpuForm(props){
     <div className="popup-inner">
         {/*<div className='popup-header'>Dodaj procesor</div>*/}
         <form className="component-form">
+            <div className="form-column-left">
                 <label className="form-label">
                     Nazwa
                     <input
@@ -112,6 +113,8 @@ function CpuForm(props){
                         onChange={handleChange}
                     />
                 </label>
+            </div>
+            <div className="form-column-right">
                 <label className="form-label">
                     Socket
                     <input
@@ -162,6 +165,7 @@ function CpuForm(props){
                         onChange={handleChange}
                     />
                 </label>
+            </div>
 
             <div className="form-buttons">
 
