@@ -24,7 +24,7 @@ class Cart_Item_ProductSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField("get_price")
     class Meta:
         model=Cart_Item
-        fields= ['amount','product','price']
+        fields= ['id','amount','product','price']
     def get_product(self,obj):
         return obj.product.product_name
     def get_price(self,obj):
