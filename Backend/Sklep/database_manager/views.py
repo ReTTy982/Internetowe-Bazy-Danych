@@ -389,3 +389,20 @@ def makeOrder(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def deleteProduct(request):
+    try:
+        product_id = request.data.get('product_id')
+        product = Product.objects.get(pk=product_id)
+    except (Product.DoesNotExist, ValueError):
+        raise Http404("Product does not exist")
+
+    Product_Item.objects.filter(product=product).delete()
+
+    if product.product_meta:
+        product.product_meta.delete()
+
+    product.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
