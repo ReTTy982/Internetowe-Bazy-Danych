@@ -24,8 +24,7 @@ function CpuForm(props){
 
     };
 
-    const handleAddCpu = async (e) => {
-        e.preventDefault();
+    const handleAddCpu = async () => {
         try {
             const token = sessionStorage.getItem('authtoken');
 
@@ -35,7 +34,7 @@ function CpuForm(props){
             // }
 
             const cpuData = {
-                "category_name": "cpu",
+                "category_name": "Procesory",
                     "product_meta":{
                         "data" : {
                                 "socket" : formData.socket,

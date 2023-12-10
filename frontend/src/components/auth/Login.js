@@ -24,11 +24,11 @@ const Login = () => {
 
             if(response.data.token){
                 sessionStorage.setItem('authToken', response.data.token);
-                if (response.data.is_superuser) {
-                    navigate('/home', {state: {isAdmin: true}});
-                } else {
-                    navigate('/home', {state: {isAdmin: false}});
-                }
+                localStorage.setItem('isAdmin', response.data.is_superuser);
+
+                console.log(response.data.is_superuser);
+                navigate('/home');
+
             }
 
 

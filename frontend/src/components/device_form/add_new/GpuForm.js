@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import axios from "axios";
 
 function StorageForm(props){
 
@@ -9,7 +10,7 @@ function StorageForm(props){
         price: '',
         amount:'',
         producent: '',
-        arrangement: '',
+        arragement: '',
         memory: '',
         memoryType: '',
         cache: '',
@@ -23,7 +24,50 @@ function StorageForm(props){
 
     };
 
-    const handleAddGpu = () =>{
+    const handleAddGpu = async () => {
+
+        try {
+            const token = sessionStorage.getItem('authtoken');
+
+            // if (!token) {
+            //     console.error('Brak tokena');
+            //     return;
+            // }
+
+            const gpuData = {
+                "category_name": "Karty Graficzne",
+                "product_meta": {
+                    "data": {
+                        "arragement": formData.arrangement,
+                        "memory": formData.memory,
+                        "memoryType": formData.memoryType,
+                        "cache": formData.cache,
+                        "conector": formData.conector
+                    }
+                },
+                "product_name": formData.name,
+                "amount": formData.amount,
+                "price": formData.price,
+                "producer": formData.producent
+
+            };
+
+            const response = await axios.post('http://127.0.0.1:8000/addProduct', gpuData, {
+                // headers: {
+                //     Authorization: `Token ${token}`,
+                //     'Content-Type': 'application/json',
+                // },
+            });
+
+            if (response.data.success) {
+                console.log('Procesor dodany pomyślnie');
+            } else {
+                console.error('Błąd dodawania procesora');
+            }
+        } catch (error) {
+            console.error('Błąd dodawania procesora:', error);
+        }
+
 
     };
 
@@ -35,7 +79,7 @@ function StorageForm(props){
                     <input
                         className="form-input"
                         type="text"
-                        name="deviceName"
+                        name="name"
                         value={formData.name}
                         onChange={handleChange}
                     />
@@ -94,8 +138,8 @@ function StorageForm(props){
                     Rodzaj pamięci
                     <input
                         className="form-input"
-                        type="number"
-                        name="mamoryType"
+                        type="text"
+                        name="memoryType"
                         value={formData.memoryType}
                         onChange={handleChange}
                     />

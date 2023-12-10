@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import axios from "axios";
 
 function StorageForm(props){
 
@@ -22,7 +23,49 @@ function StorageForm(props){
 
     };
 
-    const handleAddStorage = () =>{
+    const handleAddStorage = async () => {
+
+        try {
+            const token = sessionStorage.getItem('authtoken');
+
+            // if (!token) {
+            //     console.error('Brak tokena');
+            //     return;
+            // }
+
+            const storageData = {
+                "category_name": "Dyski",
+                "product_meta": {
+                    "data": {
+                        "capacity": formData.capacity,
+                        "interface": formData.interface,
+                        "writeSpeed": formData.writeSpeed,
+                        "readSpeed": formData.readSpeed
+                    }
+                },
+                "product_name": formData.name,
+                "amount": formData.amount,
+                "price": formData.price,
+                "producer": formData.producent
+
+            };
+
+            const response = await axios.post('http://127.0.0.1:8000/addProduct', storageData, {
+                // headers: {
+                //     Authorization: `Token ${token}`,
+                //     'Content-Type': 'application/json',
+                // },
+            });
+
+            if (response.data.success) {
+                console.log('Procesor dodany pomyślnie');
+            } else {
+                console.error('Błąd dodawania procesora');
+            }
+        } catch (error) {
+            console.error('Błąd dodawania procesora:', error);
+        }
+
 
     };
 
@@ -34,7 +77,7 @@ function StorageForm(props){
                     <input
                         className="form-input"
                         type="text"
-                        name="deviceName"
+                        name="name"
                         value={formData.name}
                         onChange={handleChange}
                     />
@@ -53,7 +96,7 @@ function StorageForm(props){
                     ilość
                     <input
                         className="form-input"
-                        type="text"
+                        type="number"
                         name="amount"
                         value={formData.amount}
                         onChange={handleChange}
@@ -93,7 +136,7 @@ function StorageForm(props){
                     Prędkość zapisu
                     <input
                         className="form-input"
-                        type="number"
+                        type="text"
                         name="writeSpeed"
                         value={formData.writeSpeed}
                         onChange={handleChange}
