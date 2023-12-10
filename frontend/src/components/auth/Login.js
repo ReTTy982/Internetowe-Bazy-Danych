@@ -25,6 +25,7 @@ const Login = () => {
             if(response.data.token){
                 sessionStorage.setItem('authToken', response.data.token);
                 localStorage.setItem('isAdmin', response.data.is_superuser);
+                localStorage.setItem("user_id", response.data.user_id)
 
                 console.log(response.data.is_superuser);
                 navigate('/home');

@@ -12,6 +12,7 @@ const Home = () => {
 
     const {state} = useLocation();
     const isAdmin = localStorage.getItem('isAdmin')==='true';
+    const user_id = localStorage.getItem("user_id");
 
     const [components, setComponents] = useState([]);
     const [selectedOption, setSelectedOption] = useState('cpu');
@@ -62,8 +63,8 @@ const Home = () => {
                     <>
                         <td>{component.id}</td>
                         <td>{component.product_name}</td>
-                        <td>{component.amount} zł</td>
-                        <td>{component.price}</td>
+                        <td>{component.amount}</td>
+                        <td>{component.price} zł</td>
                         <td>{component.producer}</td>
                         <td>{component.data.cache}</td>
                         <td>{component.data.socket}</td>
@@ -87,7 +88,7 @@ const Home = () => {
                         <td>{component.id}</td>
                         <td>{component.product_name}</td>
                         <td>{component.amount}</td>
-                        <td>{component.price}</td>
+                        <td>{component.price} zł</td>
                         <td>{component.producer}</td>
                         <td>{component.data.cache}</td>
                         <td>{component.data.memory}</td>
@@ -110,7 +111,7 @@ const Home = () => {
                         <td>{component.id}</td>
                         <td>{component.product_name}</td>
                         <td>{component.amount}</td>
-                        <td>{component.price}</td>
+                        <td>{component.price} zł</td>
                         <td>{component.producer}</td>
                         <td>{component.data.capacity}</td>
                         <td>{component.data.interface}</td>
@@ -157,7 +158,7 @@ const Home = () => {
     };
 
     const handleAddToCart = (id) =>{
-        setSelectedComponent(id);
+        localStorage.setItem("product_id", id);
         setAddToCartPopup(true)
 
     }
@@ -203,7 +204,7 @@ const Home = () => {
             </div>
                 {/*<SidebarUserConfig/>*/}
             {/*<FormPopup trigger={addComputerPopup} setTrigger={setAddComputerPopup}></FormPopup>*/}
-            <AddToCartPopup trigger={addToCartPopup} setTrigger={setAddToCartPopup} id={selectedComponent}></AddToCartPopup>
+            <AddToCartPopup trigger={addToCartPopup} setTrigger={setAddToCartPopup}></AddToCartPopup>
         </Container>
     );
 

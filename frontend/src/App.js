@@ -4,6 +4,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Home from './components/view/Home';
 import Users from "./components/view/Users";
+import Cart from "./components/view/Cart";
 
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
                     <Route path="/" element={<Navigate to="/auth/login" />} />
                     <Route path="/auth/*" element={<Navigate to="/auth/login" />} />
                     <Route path="/users" element={<Users/>}/>
+                    <Route path="/cart" element={<Cart/>}/>
                 </Routes>
             </Router>
     );

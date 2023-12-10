@@ -3,10 +3,13 @@ import './DeviceForm.css'
 import CpuForm from "./add_new/CpuForm";
 import GpuForm from "./add_new/GpuForm";
 import StorageForm from "./add_new/StorageForm";
+import axios from "axios";
 
 
-function AddToCartPopup(props, id){
+function AddToCartPopup(props){
 
+    const user_id = localStorage.getItem("user_id");
+    const product_id = localStorage.getItem("product_id")
 
     const[formData, setFormData] = useState({
 
@@ -20,10 +23,26 @@ function AddToCartPopup(props, id){
 
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async (e) => {
+        // e.preventDefault();
+        // console.log(product_id);
+        // console.log(formData.amount);
+
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/addToCart', {
+                customer_id: user_id,
+                product_id: product_id,
+                amount: formData.amount
+            });
 
 
-    }
+
+            // Tutaj możesz dodać kod obsługujący odpowiedź, jeśli to konieczne.
+        } catch (error) {
+            console.error('Błąd podczas wysyłania żądania:', error);
+        }
+    };
+
 
 
     return (props.trigger) ? (
@@ -34,9 +53,9 @@ function AddToCartPopup(props, id){
                     Wybierz ilość:
                     <input
                         className="form-input"
-                        type="text"
-                        name="name"
-                        value={formData.name}
+                        type="number"
+                        name="amount"
+                        value={formData.amount}
                         onChange={handleChange}
                     />
                 </label>

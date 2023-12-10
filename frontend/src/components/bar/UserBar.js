@@ -23,6 +23,7 @@ const UserBar = ({ onSidebarChange }) => {
 
     const handleDisplayCart = () =>{
 
+        navigate("/cart");
     }
 
     const handleDisplayOrder = () =>{
@@ -41,7 +42,7 @@ const UserBar = ({ onSidebarChange }) => {
                 ))}
             </select>
             <button type="button" onClick={handleDisplayCart}>Wyświetl koszyk</button>
-            <button type="button" onClick={handleDisplayOrder}>Historia zamówień</button>
+            {/*<button type="button" onClick={handleDisplayOrder}>Historia zamówień</button>*/}
         </div>
     );
 };

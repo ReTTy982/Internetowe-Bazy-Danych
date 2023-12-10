@@ -103,7 +103,7 @@ function CpuForm(props){
                     />
                 </label>
                 <label className="form-label">
-                    Pruducent
+                    Producent
                     <input
                         className="form-input"
                         type="text"
