@@ -6,16 +6,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, logout
-from django.db import IntegrityError, transaction
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from django.contrib.auth import authenticate, logout, login
+from django.db import IntegrityError, transaction
+from django.contrib.sessions.models import Session
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
-
+from rest_framework.authtoken.models import Token
+from django.contrib import auth
 # Create your views here.
 
 
@@ -26,7 +29,7 @@ def register(request):
             print(request.data)
             if Customer.objects.filter(email=request.data["email"]).exists():
                 raise IntegrityError
-            CustomerSerializer.validate_password(value=request.data['password'],)
+            CustomerSerializer.validate_password(value=request.data['password'])
             user = Customer.objects.create_user(request.data["name"],
                                                 request.data["email"],
                                                 request.data["password"])
@@ -40,20 +43,42 @@ def register(request):
         
 
 @api_view(['POST'])
-def reigster_super_user(request):
-    if request.method == 'POST' and request.user.is_superuser():
-        pass
+def reigster_superuser(request):
+    if request.user is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            if Customer.objects.filter(email=request.data["email"]).exists():
+                raise IntegrityError
+            CustomerSerializer.validate_password(value=request.data['password'])
+            user = Customer.objects.create_superuser(request.data["name"],
+                                                request.data["email"],
+                                                request.data["password"])
+            
+            user.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"error": f"User with email {request.data['email']} already exists"}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 @api_view(['POST'])        
 @csrf_exempt      
 def login(request):
     if request.method == 'POST':
         user = authenticate(name=request.data['name'], password=request.data['password'])
         if user is not None:
-            return Response({"success": True, "is_superuser" : user.is_superuser}, status=status.HTTP_200_OK)
+            Token.objects.filter(user=user).delete()
+            token = Token.objects.create(user_id=user.id)
+            auth.login(request, user)
+            return Response({"success": True, "is_superuser" : user.is_superuser, "token" : token.key}, status=status.HTTP_200_OK)
         else:
-            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZEDITABLE)
+            return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZED)
         
-    
+ 
 
 # takie tam testy
 def add_test(request):
@@ -113,6 +138,7 @@ def viewAllCustomers(request): #dla admina
                 'id': customer.id,
                 'name': customer.name,
                 'email': customer.email,
+                'is_staff': customer.is_staff
             }
             for customer in customers
         ]
@@ -120,13 +146,43 @@ def viewAllCustomers(request): #dla admina
     else:
         return HttpResponse(status=400)
 
-@api_view(['GET'])
-def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewAllOrders?customer=4
-    if request.method == 'GET':
-        customer_value = request.GET.get('customer')
+@api_view(['POST'])
+def viewAllOrders(request):
+    if request.method == 'POST':
+        #customer_value = request.GET.get('customer')
+        customer_value = request.data.get('customer')
         if customer_value is not None:
-            orders = Order.objects.filter(customer=customer_value)
-            serializer=OrderSerializer(orders, many=True)
+            orders_database = Order.objects.filter(customer=customer_value)
+            serializer=Order_ViewSerializer(orders_database, many=True)
+            orders=serializer.data
+            # doklejenie do listy zamówień elementów w nim zawartych,
+            for order in orders:
+                order_items=Order_Item.objects.filter(order=order["id"])
+                serializer_item = Order_Item_ProductSerializer(order_items, many=True)
+                order_items=serializer_item.data
+                for order_item in order_items:
+                    product = Product_Item.objects.get(serial_number=order_item["product_item"])
+                    serializer_product=ProductItemSerializer(product)
+                    product_name=serializer_product.data
+                    name_nwm=product_name["product"]
+                    name=Product.objects.get(id=name_nwm).product_name
+                    order_item["product_name"]=name
+                order["content"]=serializer_item.data
+            return JsonResponse(orders, safe=False)
+        else:
+            return HttpResponse(status=400)
+    else:
+        return HttpResponse(status=400)
+
+@api_view(['POST'])
+def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będzie na razie
+    if request.method == 'POST':
+        #customer_value = request.GET.get('customer')
+        customer_value = request.data.get('customer')
+        if customer_value is not None:
+            cart = Cart.objects.get(customer=customer_value)
+            cart_items = Cart_Item.objects.filter(cart=cart.id)
+            serializer=Cart_Item_ProductSerializer(cart_items,many=True)
             return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
@@ -134,29 +190,8 @@ def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewA
         return HttpResponse(status=400)
 
 
-def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będzie na razie
-    if request.method == 'GET':
-        customer_value = request.GET.get('customer')
-        if customer_value is not None:
-            cart = Cart.objects.get(customer=customer_value)
-            cart_items = Cart_Item.objects.filter(cart=cart.id)
-            cart_data = [
-                {
-                    'amount': item.amount,
-                    'product_name': Product.objects.get(id=item.product).product,
-                    'price': Product.objects.get(id=item.product).price,
-                }
-                for item in cart_items
-            ]
-            return JsonResponse(cart_data, safe=False)
-        else:
-            return HttpResponse(status=400)
-    else:
-        return HttpResponse(status=400)
 
-
-
-def viewAllProductsFromCategory(request): #to trzeba całkowicie przerobić, dodać warunki w zależności od kategorii lub to w serializatorze obrobić czy coś
+def viewAllProductsFromCategory(request): # to jest niepotrzebne
     if request.method == 'GET':
         category_id = request.GET.get('category_id')
         if category_id is not None:
@@ -171,6 +206,32 @@ def viewAllProductsFromCategory(request): #to trzeba całkowicie przerobić, dod
             return JsonResponse(products_data, safe=False)
         else:
             return HttpResponse(status=400)
+    else:
+        return HttpResponse(status=400)
+
+@api_view(['GET'])
+def viewAllDiscs(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Dyski').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return JsonResponse(serializer.data, safe=False)
+    else:
+        return HttpResponse(status=400)
+@api_view(['GET'])
+def viewAllProcessors(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Procesory').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return JsonResponse(serializer.data, safe=False)
+    else:
+        return HttpResponse(status=400)
+
+@api_view(['GET'])
+def viewAllGraphicCards(request):
+    if request.method == 'GET':
+        products = Product.objects.filter(category=Category.objects.get(category_name='Karty Graficzne').id)
+        serializer=ProductWithProduct_MetaSerializer(products,many=True)
+        return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse(status=400)
 
@@ -328,20 +389,3 @@ def makeOrder(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['DELETE'])
-def deleteProduct(request):
-    try:
-        product_id = request.data.get('product_id')
-        product = Product.objects.get(pk=product_id)
-    except (Product.DoesNotExist, ValueError):
-        raise Http404("Product does not exist")
-
-    Product_Item.objects.filter(product=product).delete()
-
-    if product.product_meta:
-        product.product_meta.delete()
-
-    product.delete()
-
-    return Response(status=status.HTTP_204_NO_CONTENT)
