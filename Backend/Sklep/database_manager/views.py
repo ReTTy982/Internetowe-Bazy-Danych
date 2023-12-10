@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -404,5 +405,17 @@ def deleteProduct(request):
         product.product_meta.delete()
 
     product.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['DELETE'])
+def deleteCart(request):
+    try:
+        customer_id = request.data.get('customer_id')
+        customer_cart = Cart.objects.get(customer_id=customer_id)
+    except (Cart.DoesNotExist, ValueError):
+        raise Http404("Cart does not exist for the specified customer")
+
+    customer_cart.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
