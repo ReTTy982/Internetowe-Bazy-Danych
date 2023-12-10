@@ -8,7 +8,7 @@ import UserCartBar from "../bar/UserCartBar";
 
 const user_id = localStorage.getItem("user_id");
 
-const Cart = () =>{
+const Cart = (id) =>{
 
     const [carts, setCarts] = useState([]);
     const fetchCarts = () => {
@@ -28,7 +28,25 @@ const Cart = () =>{
             });
     }
 
-    const handleDeleteCart = () =>{
+    const handleDeleteCart = (id) =>{
+
+        axios.delete('http://127.0.0.1:8000/deleteCartItem', {
+            data: {
+                id: id,
+            },
+            headers: {
+                'Content-type': 'application/json;',
+            },
+        })
+            .then((response) => {
+                console.log('Koszyk został pomyślnie usunięty.');
+            })
+            .catch((error) => {
+                console.error('Wystąpił problem podczas usuwania koszyka:', error.message);
+            });
+
+        const updatedCarts = carts.filter((cart) => cart.id !== id);
+        setCarts(updatedCarts);
 
     }
 
@@ -41,7 +59,7 @@ const Cart = () =>{
                 <td>{cart.amount}</td>
                 <td>{cart.price} zł</td>
                 <td>
-                    <button onClick={() => handleDeleteCart()}> Usuń zamówienie</button>
+                    <button onClick={() => handleDeleteCart(cart.id)}> Usuń zamówienie</button>
                 </td>
             </>
         )
