@@ -19,13 +19,13 @@ const Home = () => {
 
         switch (option){
             case 'cpu':
-                url = 'http://localhost:8080/cpus/all';
+                url = 'http://127.0.0.1:8000/viewAllProcessors';
                 break;
             case 'gpu':
-                url = 'http://localhost:8080/gpus/all';
+                url = 'http://127.0.0.1:8000/viewAllGraphicCards';
                 break;
             case 'storage':
-                url = 'http://localhost:8080/storages/all';
+                url = 'http://127.0.0.1:8000/viewAllDiscs';
                 break;
             default:
                 url = 'http://localhost:8080/cpus/all';

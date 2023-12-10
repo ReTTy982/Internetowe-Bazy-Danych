@@ -22,11 +22,16 @@ const Login = () => {
                 password: password,
             });
 
-            if (response.data.is_superuser) {
-                navigate('/home', {state: {isAdmin: true}});
-            } else {
-                navigate('/home', {state: {isAdmin: false}});
+            if(response.data.token){
+                sessionStorage.setItem('authToken', response.data.token);
+                if (response.data.is_superuser) {
+                    navigate('/home', {state: {isAdmin: true}});
+                } else {
+                    navigate('/home', {state: {isAdmin: false}});
+                }
             }
+
+
         } catch (error) {
             setShowError(true);
         }

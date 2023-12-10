@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import axios from "axios";
 
 function CpuForm(props){
 
@@ -23,8 +24,49 @@ function CpuForm(props){
 
     };
 
-    const handleAddCpu = () =>{
+    const handleAddCpu = async (e) => {
+        e.preventDefault();
+        try {
+            const token = sessionStorage.getItem('authtoken');
 
+            // if (!token) {
+            //     console.error('Brak tokena');
+            //     return;
+            // }
+
+            const cpuData = {
+                "category_name": "cpu",
+                    "product_meta":{
+                        "data" : {
+                                "socket" : formData.socket,
+                                "clockRate" : formData.clockRate,
+                                "numberOfCores" : formData.numberOfCores,
+                                "cache" : formData.cache,
+                                "integra" : formData.integra
+                            }
+                    },
+                "product_name":formData.name,
+                "amount" : formData.amount,
+                "price" : formData.price,
+                "producer": formData.producent
+
+                };
+
+            const response = await axios.post('http://127.0.0.1:8000/addProduct', cpuData, {
+                // headers: {
+                //     Authorization: `Token ${token}`,
+                //     'Content-Type': 'application/json',
+                // },
+            });
+
+            if (response.data.success) {
+                console.log('Procesor dodany pomyślnie');
+            } else {
+                console.error('Błąd dodawania procesora');
+            }
+        } catch (error) {
+            console.error('Błąd dodawania procesora:', error);
+        }
     };
 
     return(
@@ -36,7 +78,7 @@ function CpuForm(props){
                     <input
                         className="form-input"
                         type="text"
-                        name="deviceName"
+                        name="name"
                         value={formData.name}
                         onChange={handleChange}
                     />
@@ -55,7 +97,7 @@ function CpuForm(props){
                     ilość
                     <input
                         className="form-input"
-                        type="text"
+                        type="number"
                         name="amount"
                         value={formData.amount}
                         onChange={handleChange}
