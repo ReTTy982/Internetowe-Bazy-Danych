@@ -1,0 +1,34 @@
+addCategory
+POST:
+    Takes:{ category_name: CharField}
+    Returns: status=201 || status=400
+
+addProduct_Meta
+POST:
+    Takes:{ data: JSONField}
+    Returns: status=201 || status=400
+
+addProduct
+POST:
+    Takes:{ category_name: CharField, product_meta: JSONField, product_name:CharField, amount:IntegerField, price:FloatField, producer: CharField }
+    Returns: status=201 || status=400
+
+addProductItem
+POST:
+    Takes:{ serial_number: CharField, id: int }
+    Returns: status=201 || status=400
+
+addCustomer
+POST:
+    Takes:{ name: CharField, email: CharField, password: CharField}
+    Returns: status=201 || status=400
+
+addToCart
+POST:
+    Takes:{ customer_id: int, product_id: int, amount: int }
+    Returns: status=201 || status=400
+
+makeOrder
+POST:
+    Takes:{ customer_id: int, city:CharField, street:street, street: int}
+    Returns: status=201 || status=400

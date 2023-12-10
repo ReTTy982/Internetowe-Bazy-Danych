@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from django.contrib.auth import authenticate, logout, login
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.contrib.sessions.models import Session
 from rest_framework import status
 from django.core.exceptions import FieldError
@@ -147,14 +147,28 @@ def viewAllCustomers(request): #dla admina
         return HttpResponse(status=400)
 
 @api_view(['POST'])
-def viewAllOrders(request): # przykładowe zapytanie http://127.0.0.1:8000/viewAllOrders?customer=4
+def viewAllOrders(request):
     if request.method == 'POST':
         #customer_value = request.GET.get('customer')
         customer_value = request.data.get('customer')
         if customer_value is not None:
-            orders = Order.objects.filter(customer=customer_value)
-            serializer=OrderSerializer(orders, many=True)
-            return JsonResponse(serializer.data, safe=False)
+            orders_database = Order.objects.filter(customer=customer_value)
+            serializer=Order_ViewSerializer(orders_database, many=True)
+            orders=serializer.data
+            # doklejenie do listy zamówień elementów w nim zawartych,
+            for order in orders:
+                order_items=Order_Item.objects.filter(order=order["id"])
+                serializer_item = Order_Item_ProductSerializer(order_items, many=True)
+                order_items=serializer_item.data
+                for order_item in order_items:
+                    product = Product_Item.objects.get(serial_number=order_item["product_item"])
+                    serializer_product=ProductItemSerializer(product)
+                    product_name=serializer_product.data
+                    name_nwm=product_name["product"]
+                    name=Product.objects.get(id=name_nwm).product_name
+                    order_item["product_name"]=name
+                order["content"]=serializer_item.data
+            return JsonResponse(orders, safe=False)
         else:
             return HttpResponse(status=400)
     else:
@@ -168,7 +182,7 @@ def viewCart(request): # No takie nie wiem nawet czy to działa, ale niech będz
         if customer_value is not None:
             cart = Cart.objects.get(customer=customer_value)
             cart_items = Cart_Item.objects.filter(cart=cart.id)
-            serializer=Cart_ItemSerializer(cart_items,many=True)
+            serializer=Cart_Item_ProductSerializer(cart_items,many=True)
             return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponse(status=400)
@@ -244,18 +258,28 @@ def addProduct(request):
     if request.method == 'POST':
         try:
             params = request.data
-            category = Category.objects.get(id=params['Category_ID'])
-            product_Meta = Product_Meta.objects.get(id=params['Product_Meta_ID'])
+            category_name = params['category_name']
+            product_meta_data = params['product_meta']
+
+            category, created_category = Category.objects.get_or_create(category_name=category_name)
+
+            product_meta_serializer = Product_MetaSerializer(data=product_meta_data)
+            if product_meta_serializer.is_valid():
+                product_meta, created_meta = Product_Meta.objects.get_or_create(**product_meta_serializer.validated_data)
+            else:
+                return Response(product_meta_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             product = Product(
                 product_name=params['product_name'],
                 amount=params['amount'],
                 price=params['price'],
                 producer=params['producer'],
                 category=category,
-                product_meta=product_Meta
+                product_meta=product_meta
             )
             product.full_clean()
             product.save()
+
             serializer = ProductSerializer(product)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
