@@ -197,18 +197,28 @@ def addProduct(request):
     if request.method == 'POST':
         try:
             params = request.data
-            category = Category.objects.get(id=params['Category_ID'])
-            product_Meta = Product_Meta.objects.get(id=params['Product_Meta_ID'])
+            category_name = params['category_name']
+            product_meta_data = params['product_meta']
+
+            category, created_category = Category.objects.get_or_create(category_name=category_name)
+
+            product_meta_serializer = Product_MetaSerializer(data=product_meta_data)
+            if product_meta_serializer.is_valid():
+                product_meta, created_meta = Product_Meta.objects.get_or_create(**product_meta_serializer.validated_data)
+            else:
+                return Response(product_meta_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             product = Product(
                 product_name=params['product_name'],
                 amount=params['amount'],
                 price=params['price'],
                 producer=params['producer'],
                 category=category,
-                product_meta=product_Meta
+                product_meta=product_meta
             )
             product.full_clean()
             product.save()
+
             serializer = ProductSerializer(product)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (ValueError, TypeError, FieldError, ObjectDoesNotExist, ValidationError) as e:
