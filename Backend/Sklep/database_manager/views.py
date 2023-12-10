@@ -75,7 +75,7 @@ def login(request):
             Token.objects.filter(user=user).delete()
             token = Token.objects.create(user_id=user.id)
             auth.login(request, user)
-            return Response({"success": True, "is_superuser" : user.is_superuser, "token" : token.key}, status=status.HTTP_200_OK)
+            return Response({"user_id": user.id, "success": True, "is_superuser" : user.is_superuser, "token" : token.key}, status=status.HTTP_200_OK)
         else:
             return Response({"success": False}, status=status.HTTP_401_UNAUTHORIZED)
         
