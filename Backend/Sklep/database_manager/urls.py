@@ -28,6 +28,6 @@ urlpatterns = [
     path('makeOrder', views.makeOrder),
     path("deleteProduct", views.deleteProduct),
     path("deleteCart", views.deleteCart),
-
+    path("deleteCartItem", views.deleteCartItem),
 
     ]
