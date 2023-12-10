@@ -424,10 +424,10 @@ def deleteCart(request):
 def deleteCartItem(request):
     try:
         cart_item_id = request.data.get('id')
-        customer_cart = Cart_Item.objects.get(id=cart_item_id)
+        cart_item = Cart_Item.objects.get(id=cart_item_id)
     except (Cart.DoesNotExist, ValueError):
         raise Http404("Cart does not exist for the specified customer")
 
-    cart_item_id.delete()
+    cart_item.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
