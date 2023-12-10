@@ -5,17 +5,21 @@ from django.core.exceptions import ValidationError
 
 from django.db import models
 
-class Order_ItemSerializer(serializers.ModelSerializer):
+class Order_Item_ProductSerializer(serializers.ModelSerializer):
+    product_item = serializers.SerializerMethodField("get_product_item")
     class Meta:
         model = Order_Item
-        fields = '__all__'
+        fields = ['price', 'product_item']
+    def get_product_item(self,obj):
+        return obj.product_item.serial_number
 
-class OrderSerializer(serializers.ModelSerializer):
+
+class Order_ViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['total_price','order_date','city','street','house_number']
+        fields = ['id','total_price','order_date','city','street','house_number']
 
-class Cart_ItemSerializer(serializers.ModelSerializer):
+class Cart_Item_ProductSerializer(serializers.ModelSerializer):
     product = serializers.SerializerMethodField("get_product")
     price = serializers.SerializerMethodField("get_price")
     class Meta:
@@ -75,8 +79,6 @@ class ProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model=Product_Item
         fields='__all__'
-
-
 
 
 class CartItemSerializer(serializers.ModelSerializer):
